@@ -1,48 +1,42 @@
 """
-Database Schemas
+Database Schemas for Blood Donor Nepal
 
-Define your MongoDB collection schemas here using Pydantic models.
-These schemas are used for data validation in your application.
+Each Pydantic model represents a collection in MongoDB. The collection name is the
+lowercased class name.
 
-Each Pydantic model represents a collection in your database.
-Model name is converted to lowercase for the collection name:
-- User -> "user" collection
-- Product -> "product" collection
-- BlogPost -> "blogs" collection
+- User -> "user"
+- Request -> "request"
 """
-
-from pydantic import BaseModel, Field
 from typing import Optional
-
-# Example schemas (replace with your own):
+from pydantic import BaseModel, Field
 
 class User(BaseModel):
     """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
+    Donor/User schema
+    Collection: "user"
     """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+    full_name: str = Field(..., description="Full name of the user")
+    phone: str = Field(..., description="Contact phone number")
+    blood_group: str = Field(..., description="Blood group, e.g., A+, O-, AB+")
+    age: int = Field(..., ge=18, le=80, description="Age in years")
+    city: str = Field(..., description="City name")
+    latitude: Optional[float] = Field(None, description="Latitude from maps API")
+    longitude: Optional[float] = Field(None, description="Longitude from maps API")
+    password: str = Field(..., description="Password (MVP - stored as plain text)")
+    role: str = Field("Donor", description="User role, default Donor")
+    verified: bool = Field(False, description="Verification status")
 
-class Product(BaseModel):
+class Request(BaseModel):
     """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
+    Blood Request schema
+    Collection: "request"
     """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
-
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+    required_blood_group: str = Field(..., description="Requested blood group")
+    required_units: int = Field(..., ge=1, le=20, description="Units needed (pints)")
+    hospital_name: str = Field(..., description="Hospital name")
+    contact_name: str = Field(..., description="Primary contact person name")
+    contact_phone: str = Field(..., description="Primary contact phone")
+    city: str = Field(..., description="City where blood is needed")
+    latitude: Optional[float] = Field(None, description="Latitude from maps API")
+    longitude: Optional[float] = Field(None, description="Longitude from maps API")
+    status: str = Field("Pending", description="Request status")
